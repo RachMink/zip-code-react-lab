@@ -3,25 +3,55 @@ import './App.css';
 
 
 function City(props) {
-  return (<div>This is the City component</div>);
+  return (
+    <div className= "city-container">
+      <p> CITY NAME: {props.Name} </p>
+      <p> STATE: {props.State}</p>
+      <p> ESTIMATED POPULATION: {props.EstimatedPopulation} </p>
+      
+    </div>);
 }
 
 function ZipSearchField(props) {
-  return (<div>This is the ZipSearchField component</div>);
+  return (
+  <div>
+    Zip Code: 
+    <input type="text" onChange={props.changeHandler}></input>
+  </div>);
 }
 
 
 class App extends Component {
-  render() {
+  state = {
+    zipCode: "",
+    cities: []
+  }
+
+  zipChange = (event)=> {
+    this.setState({zipCode: event.target.value})
+
+    fetch("http://ctp-zip-api.herokuapp.com/zip/" + event.target.value)
+    .then((res)=> res.json())
+    .then((json)=> {
+      this.setState({cities: json})
+    });
+
+  }
+
+  
+
+  render() {      
+
     return (
       <div className="App">
         <div className="App-header">
           <h2>Zip Code Search</h2>
         </div>
-        <ZipSearchField />
+        <ZipSearchField zipCode={this.state.zipCode} changeHandler={this.zipChange} />
+        <div>Current Zip is: {this.state.zipCode}</div>
+
         <div>
-          <City />
-          <City />
+          {this.state.cities.map((city)=> <City Name = {city.City} State = {city.State} EstimatedPopulation= {city.EstimatedPopulation || "unknown"}/>) }
         </div>
       </div>
     );
